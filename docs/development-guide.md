@@ -501,3 +501,51 @@ A feature is complete when:
 * Code review is approved.
 * CI succeeds.
 * Feature is deployed successfully.
+
+---
+
+# 27. Local Docker Workflow
+
+Nimbus relies on Docker Compose for local development to ensure parity across environments and avoid installing complex dependencies directly on the host machine.
+
+### Local Database Architecture
+Locally, the application runs alongside a containerized **PostgreSQL 17** instance (`nimbus-db`). This instance mimics the production database but runs ephemerally (with persistent volumes mapped locally) for development purposes.
+
+### Environment Variables
+Environment variables dictate how the application connects to databases, secures tokens, and manages CORS.
+- `POSTGRES_USER` & `POSTGRES_PASSWORD`: Used strictly for initializing the local PostgreSQL Docker container.
+- `DATABASE_URL`: The SQLAlchemy connection string. Locally it points to `postgresql+asyncpg://postgres:postgres@db:5432/nimbus`.
+- `JWT_SECRET_KEY`: Used by Authlib to sign and verify access tokens.
+- `CORS_ORIGINS`: JSON list of allowed origins.
+
+*Important:* You must never commit your `.env` file. Copy `.env.example` to `.env` to start developing.
+
+### Verified Development Commands
+Use these precise commands to orchestrate your local environment:
+
+**Start the environment (Background):**
+`docker compose up -d`
+
+**Stop the environment:**
+`docker compose down`
+
+**View Backend Logs:**
+`docker compose logs backend`
+
+**View Database Logs:**
+`docker compose logs db`
+
+**Check Container Status:**
+`docker ps`
+
+**Generate Migrations (Requires running DB):**
+`alembic revision --autogenerate`
+
+**Apply Migrations:**
+`alembic upgrade head`
+
+**Seed the Database:**
+`python -m app.db.seed`
+
+**Run Backend Locally (Without Docker):**
+`uvicorn app.main:app --reload`

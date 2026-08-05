@@ -23,7 +23,7 @@ RUN uv pip install --system --no-cache -r requirements.txt
 # Production Image
 FROM python:3.14-slim AS runner
 
-WORKDIR /app
+WORKDIR /app/backend
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
@@ -47,4 +47,4 @@ COPY --chown=nimbus:nimbus pyproject.toml /app/pyproject.toml
 
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

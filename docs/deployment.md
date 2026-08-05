@@ -771,3 +771,19 @@ The architecture is designed so these services can be introduced without disrupt
 Docker is the standard execution environment for Nimbus.
 
 All backend and machine learning components should be developed with containerization in mind, ensuring consistent behavior across local development, testing, CI/CD, and production.
+
+---
+
+# 15. Production Deployment vs Local Architecture
+
+### The Difference between Local PostgreSQL and Supabase
+During local development, Nimbus runs a vanilla `postgres:17` container. However, in production, Nimbus connects to **Supabase**.
+
+Supabase provides additional tooling on top of PostgreSQL, including connection pooling (PgBouncer) which operates on port `6543`. When deploying to Render, the `DATABASE_URL` environment variable must point to the Supabase connection pooler rather than the direct database port (5432) to handle thousands of concurrent serverless connections gracefully.
+
+### Production Deployment Overview
+1. **Frontend**: Deployed seamlessly to Vercel via GitHub integration. Vercel environment variables point to the Render backend API.
+2. **Backend**: Deployed to Render as a Web Service utilizing the same multi-stage Dockerfile used in development. Render handles the `uv` build process securely as a non-root user.
+3. **Database**: Supabase manages the highly available PostgreSQL instance.
+
+Ensure all secrets (like `JWT_SECRET_KEY`) are injected safely via the Render dashboard, and never hardcoded.

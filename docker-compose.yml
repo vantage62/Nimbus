@@ -2,36 +2,37 @@ version: '3.8'
 
 services:
   backend:
+    container_name: nimbus-backend
     build:
       context: .
       dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - ENVIRONMENT=development
-      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/nimbus
+    env_file:
+      - .env
     volumes:
-      - ./backend:/app/backend
-      - ./pyproject.toml:/app/pyproject.toml
+      - .:/app
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
 
   db:
+    container_name: nimbus-db
     image: postgres:17
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=nimbus
+    env_file:
+      - .env
     ports:
       - "54322:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
   postgres_data:
+
