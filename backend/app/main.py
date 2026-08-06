@@ -7,6 +7,22 @@ from app.middleware.request_id import RequestLoggingMiddleware
 from app.core.config import settings
 from sqlalchemy.orm.exc import StaleDataError
 
+# Import all models to ensure they are registered with SQLAlchemy
+from app.modules.auth.models import User, RefreshToken, Role, Permission
+from app.modules.business.models import Business, BusinessMembership, Store
+from app.modules.categories.models import Category
+from app.modules.suppliers.models import Supplier
+from app.modules.products.models import Product
+from app.modules.inventory.models import Inventory, StockMovement
+from app.modules.sales.models import Sale
+from app.modules.forecasting.models import MLModel, ForecastRun, Forecast
+from app.modules.notifications.models import Notification
+from app.modules.settings.models import Setting
+from app.modules.upload.models import CsvUpload
+from app.modules.analytics.models import AnalyticsSnapshot
+from app.modules.chat.models import AiConversation
+from app.modules.audit.models import AuditLog
+
 app = FastAPI(
     title="Nimbus API",
     description="Nimbus SaaS platform backend API",

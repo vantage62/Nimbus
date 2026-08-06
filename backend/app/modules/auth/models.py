@@ -10,6 +10,10 @@ class User(Base, SoftDeleteMixin):
     hashed_password: Mapped[str] = mapped_column(String(255))
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     
+    email_verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    verification_token: Mapped[str | None] = mapped_column(String(255), unique=True, index=True)
+    verification_token_expires_at: Mapped[datetime | None]
+    
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship("RefreshToken", back_populates="user")
     memberships: Mapped[list["BusinessMembership"]] = relationship("BusinessMembership", back_populates="user")
     roles: Mapped[list["Role"]] = relationship("Role", secondary="user_roles", back_populates="users")
