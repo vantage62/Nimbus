@@ -1,6 +1,6 @@
 from typing import Annotated, Callable
 from fastapi import Depends
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from app.database.session import get_db
@@ -10,12 +10,13 @@ from app.core.security import decode_token
 from app.core.exceptions.base import NimbusException
 from uuid import UUID
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+security = HTTPBearer()
 
 async def get_current_user(
-    token: Annotated[str, Depends(oauth2_scheme)],
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
     session: Annotated[AsyncSession, Depends(get_db)]
 ) -> User:
+    token = credentials.credentials
     try:
         payload = decode_token(token)
         user_id = payload.get("sub")
@@ -75,7 +76,9 @@ async def get_current_business(
         return business_id
         
     for membership in user.memberships:
-        if membership.business_id == business_id:
+        print(f"Comparing {membership.business_id} (type {type(membership.business_id)}) with {business_id} (type {type(business_id)})")
+        if str(membership.business_id) == str(business_id):
             return business_id
             
+    print(f"User memberships: {user.memberships}")
     raise NimbusException(status_code=403, message="Not a member of this business", code="FORBIDDEN")

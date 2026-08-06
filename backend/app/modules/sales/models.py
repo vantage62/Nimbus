@@ -6,7 +6,7 @@ from decimal import Decimal
 from datetime import datetime, timezone
 
 def utcnow():
-    return datetime.now(timezone.utc)
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 class Sale(Base, SoftDeleteMixin):
     __tablename__ = "sales"
